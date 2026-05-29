@@ -2,7 +2,10 @@ package com.jpa.fooddelivery.Entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "foodie_user")
 @Getter
 @Setter
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -22,46 +26,30 @@ public class User {
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
     @Embedded
     private Address address;
 
+    @Column(length = 15)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
-    private boolean isAvailable = true;
+    private boolean available = true;
 
+    @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void preSave() {
-        this.createdAt = LocalDateTime.now();
-    }
 
     @PostPersist
     public void postSave() {
-        System.out.println();
-        System.out.println("----------------------------------------");
         System.out.println("User created successfully with the name: " + this.getName());
-        System.out.println("----------------------------------------");
-        System.out.println();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-
-    }
-
-    @PostUpdate
-    public void postUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 }

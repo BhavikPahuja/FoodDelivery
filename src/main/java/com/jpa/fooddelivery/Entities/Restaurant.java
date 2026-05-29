@@ -1,8 +1,12 @@
 package com.jpa.fooddelivery.Entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -11,6 +15,8 @@ import java.time.LocalTime;
 @Table(name = "foodie_restaurant")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Restaurant {
 
     @Id
@@ -20,18 +26,29 @@ public class Restaurant {
     @Column(nullable = false, length = 100)
     private String name;
 
+    private String banner;
+
+    private String description;
+
     @Embedded
     private Address address;
 
-    private LocalTime openTime;
-    private LocalTime closeTime;
+    @Column(nullable = false)
+    private LocalTime openingTime;
 
-    private boolean isOpen = true;
+    @Column(nullable = false)
+    private LocalTime closingTime;
+
+    private boolean open = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private User createdBy;
 
+    @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

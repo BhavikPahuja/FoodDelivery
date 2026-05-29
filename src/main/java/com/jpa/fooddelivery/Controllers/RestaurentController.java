@@ -2,30 +2,65 @@ package com.jpa.fooddelivery.Controllers;
 
 import com.jpa.fooddelivery.Entities.Address;
 import com.jpa.fooddelivery.Entities.Restaurant;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.jpa.fooddelivery.Payloads.Requests.RestaurantRequestDto;
+import com.jpa.fooddelivery.Payloads.Responses.RestaurantResponseDto;
+import com.jpa.fooddelivery.Services.RestaurantService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/restauarents")
+@RequestMapping("/api/v1/restaurants")
+@RequiredArgsConstructor
 public class RestaurentController {
 
-    @RequestMapping("/get_restauarent")
-    public Restaurant getRestaurant() {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(UUID.randomUUID().getMostSignificantBits());
-        restaurant.setName("Restaurant");
-        restaurant.setOpen(true);
+    private final RestaurantService  restaurantService;
 
-        Address address = new Address();
-        address.setZipCode("12345");
-        address.setCity("Berlin");
-        address.setState("Berlin");
-        address.setCountry("Berlin");
-        restaurant.setAddress(address);
+    @PostMapping
+    public ResponseEntity<RestaurantResponseDto> createRestaurant(@RequestBody RestaurantRequestDto restaurantRequestDto) {
+        RestaurantResponseDto restaurantResponseDto = restaurantService.createRestaurant(restaurantRequestDto);
+        return new ResponseEntity<>(restaurantResponseDto, HttpStatus.CREATED);
+    }
 
-        return restaurant;
+    @GetMapping
+    public ResponseEntity<Page<RestaurantResponseDto>> findAllRestaurants(
+        @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+        @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+        @RequestParam(value = "sortBy", required = false, defaultValue = "name") String sortBy,
+        @RequestParam(value = "sortDirection", required = false, defaultValue = "desc") String sortDirection
+    ) {
+        Sort sort = sortDirection.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return new ResponseEntity<>(restaurantService.findAllRestaurants(pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<RestaurantResponseDto> getRestaurantById(@PathVariable("restaurantId") Long id) {
+        return new ResponseEntity<>(restaurantService.findRestaurantById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/open")
+    public ResponseEntity<Page<RestaurantResponseDto>> findAllOpenedRestaurants(
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "name") String sortBy,
+            @RequestParam(value = "sortDirection", required = false, defaultValue = "desc") String sortDirection,
+            @RequestParam(value = "flag", required = false, defaultValue = "true") boolean flag
+    ) {
+        Sort sort = sortDirection.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return new ResponseEntity<>(restaurantService.findAllOpenedRestaurants(flag, pageable), HttpStatus.OK);
+    }
+
+    @PutMapping("/{restaurantId}")
+    public ResponseEntity<RestaurantResponseDto> updateRestaurant(@RequestBody RestaurantRequestDto restaurantRequestDto, @PathVariable("restaurantId") Long id) {
+        return new ResponseEntity<>(restaurantService.updateRestaurant(restaurantRequestDto, id), HttpStatus.OK);
     }
 }

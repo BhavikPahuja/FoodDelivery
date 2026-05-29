@@ -1,6 +1,6 @@
 package com.jpa.fooddelivery.Controllers;
 
-import com.jpa.fooddelivery.Payloads.UserDTO;
+import com.jpa.fooddelivery.Payloads.Requests.UserRequestDto;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +15,11 @@ public class AuthController {
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @RequestMapping("/signup")
-    public String signUp(@Valid @RequestBody UserDTO userDTO) {
+    public String signUp(@Valid @RequestBody UserRequestDto userRequestDTO) {
 
-        logger.info("userName : {}",  userDTO.getName());
-        logger.info("age : {}",  userDTO.getAge());
-        logger.info("email : {}",  userDTO.getEmail());
+        logger.info("userName : {}",  userRequestDTO.getName());
+        logger.info("email : {}",  userRequestDTO.getEmail());
+        logger.info("password : {}",  userRequestDTO.getPassword());
 
         return "success";
     }
