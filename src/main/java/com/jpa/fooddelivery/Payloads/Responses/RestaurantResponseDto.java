@@ -42,7 +42,7 @@ public class RestaurantResponseDto {
     private LocalDateTime updatedAt;
 
     @JsonProperty
-    public String imageURI() {
-        return "https://localhost:8080/images/" + banner;
+    public String banner() {
+        return banner;
     }
 }

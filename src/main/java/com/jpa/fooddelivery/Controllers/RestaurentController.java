@@ -1,19 +1,28 @@
 package com.jpa.fooddelivery.Controllers;
 
-import com.jpa.fooddelivery.Entities.Address;
-import com.jpa.fooddelivery.Entities.Restaurant;
+import com.jpa.fooddelivery.Exceptions.InvalidFilePathException;
 import com.jpa.fooddelivery.Payloads.Requests.RestaurantRequestDto;
 import com.jpa.fooddelivery.Payloads.Responses.RestaurantResponseDto;
+import com.jpa.fooddelivery.Services.FileService;
 import com.jpa.fooddelivery.Services.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @RestController
@@ -22,6 +31,7 @@ import java.util.UUID;
 public class RestaurentController {
 
     private final RestaurantService  restaurantService;
+    private final FileService fileService;
 
     @PostMapping
     public ResponseEntity<RestaurantResponseDto> createRestaurant(@RequestBody RestaurantRequestDto restaurantRequestDto) {
@@ -62,5 +72,23 @@ public class RestaurentController {
     @PutMapping("/{restaurantId}")
     public ResponseEntity<RestaurantResponseDto> updateRestaurant(@RequestBody RestaurantRequestDto restaurantRequestDto, @PathVariable("restaurantId") Long id) {
         return new ResponseEntity<>(restaurantService.updateRestaurant(restaurantRequestDto, id), HttpStatus.OK);
+    }
+
+    @PostMapping("/upload-banner/{restaurantId}")
+    public ResponseEntity<RestaurantResponseDto> uploadBanner(
+            @PathVariable("restaurantId") Long id,
+            @RequestParam("banner")MultipartFile banner
+            ) throws IOException {
+        RestaurantResponseDto restaurantResponseDto = restaurantService.uploadBanner(banner, id);
+        return ResponseEntity.ok(restaurantResponseDto);
+    }
+
+    @GetMapping("/{restaurantId}/get-banner")
+    public ResponseEntity<Resource> getBanner(@PathVariable("restaurantId") Long id) throws IOException {
+        Resource banner = restaurantService.getBanner(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + banner.getFilename() + "\"")
+                .body(banner);
     }
 }

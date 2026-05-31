@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponseDto> dataIntegrityViolationException(DataIntegrityViolationException ex) {
+    public ResponseEntity<ErrorResponseDto> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         ErrorResponseDto response = ErrorResponseDto.builder()
                 .message(ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST)
@@ -48,4 +48,28 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidFilePathException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidFilePathException(InvalidFilePathException ex) {
+        ErrorResponseDto response = ErrorResponseDto.builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.BAD_REQUEST)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidFileContentException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidFileContentException(InvalidFileContentException ex) {
+        ErrorResponseDto reponse = ErrorResponseDto.builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.BAD_REQUEST)
+                .build();
+        return new ResponseEntity<>(reponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<Map<String, String>> handleUploadException(FileUploadException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage()));
+    }
 }
