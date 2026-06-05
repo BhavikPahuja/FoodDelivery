@@ -1,27 +1,39 @@
 package com.jpa.fooddelivery.Controllers;
 
-import com.jpa.fooddelivery.Payloads.Requests.UserRequestDto;
-import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.jpa.fooddelivery.Payloads.Requests.LoginRequest;
+import com.jpa.fooddelivery.Payloads.Responses.JwtResponse;
+import com.jpa.fooddelivery.Security.JwtService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;;
 
-    @RequestMapping("/signup")
-    public String signUp(@Valid @RequestBody UserRequestDto userRequestDTO) {
+    @PostMapping("/signin")
+    public ResponseEntity<?> signin(@RequestBody LoginRequest loginRequest) {
 
-        logger.info("userName : {}",  userRequestDTO.getName());
-        logger.info("email : {}",  userRequestDTO.getEmail());
-        logger.info("password : {}",  userRequestDTO.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new
+                UsernamePasswordAuthenticationToken(
+                        loginRequest.email(),
+                        loginRequest.password()
+                );
+        authenticationManager.authenticate(authenticationToken);
 
-        return "success";
+        String jwtToken = jwtService.generateToken(loginRequest.email());
+        return ResponseEntity.ok(JwtResponse.builder().token(jwtToken).build());
     }
 
 }

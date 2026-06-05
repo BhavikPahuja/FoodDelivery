@@ -1,7 +1,6 @@
 package com.jpa.fooddelivery.Payloads.Responses;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jpa.fooddelivery.Entities.Role;
 import com.jpa.fooddelivery.Payloads.AddressDto;
 import lombok.*;
 
@@ -18,7 +17,6 @@ public class UserResponseDto {
     private String email;
     private AddressDto address;
     private String phoneNumber;
-    private Role role;
     private boolean available;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy, hh-mm-ss")

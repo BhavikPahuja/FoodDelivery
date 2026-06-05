@@ -1,6 +1,5 @@
 package com.jpa.fooddelivery.Payloads.Requests;
 
-import com.jpa.fooddelivery.Entities.Role;
 import com.jpa.fooddelivery.Payloads.AddressDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -31,7 +30,4 @@ public class UserRequestDto {
 
     @Pattern(regexp = "^[+]?[0-9]{10,15}$", message = "Invalid phone number")
     private String phoneNumber;
-
-    @NotNull(message = "Role is required")
-    private Role role;
 }

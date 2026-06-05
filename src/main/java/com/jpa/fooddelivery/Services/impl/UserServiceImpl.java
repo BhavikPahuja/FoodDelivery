@@ -1,15 +1,19 @@
 package com.jpa.fooddelivery.Services.impl;
 
+import com.jpa.fooddelivery.Entities.Authorities;
 import com.jpa.fooddelivery.Entities.User;
 import com.jpa.fooddelivery.Exceptions.ResourceNotFoundException;
 import com.jpa.fooddelivery.Mappers.UserMapper;
 import com.jpa.fooddelivery.Payloads.Requests.UserRequestDto;
 import com.jpa.fooddelivery.Payloads.Responses.UserResponseDto;
+import com.jpa.fooddelivery.Repositories.AuthoritiesRepository;
 import com.jpa.fooddelivery.Repositories.UserRepository;
 import com.jpa.fooddelivery.Services.UserService;
+import com.jpa.fooddelivery.Utils.RoleConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,10 +24,17 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthoritiesRepository authoritiesRepository;
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         User user = userMapper.toUser(userRequestDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Authorities authority = authoritiesRepository.findByAuthority(RoleConstants.getROLE_ADMIN());
+        if (authority != null) {
+            user.getAuthorities().add(authority);
+        }
         User savedUser = userRepository.save(user);
         return userMapper.toUserResponseDto(savedUser);
     }
