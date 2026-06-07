@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,6 +76,7 @@ public class RestaurentController {
     }
 
     @PostMapping("/upload-banner/{restaurantId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RestaurantResponseDto> uploadBanner(
             @PathVariable("restaurantId") Long id,
             @RequestParam("banner")MultipartFile banner
@@ -86,6 +88,8 @@ public class RestaurentController {
     @GetMapping("/{restaurantId}/get-banner")
     public ResponseEntity<Resource> getBanner(@PathVariable("restaurantId") Long id) throws IOException {
         Resource banner = restaurantService.getBanner(id);
+        System.out.println(banner);
+        System.out.println(banner.getFilename());
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + banner.getFilename() + "\"")

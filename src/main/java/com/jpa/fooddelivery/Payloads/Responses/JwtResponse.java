@@ -9,5 +9,6 @@ import lombok.Setter;
 @Builder
 public class JwtResponse {
 
-    String token;
+    String accessToken;
+    String refreshToken;
 }

@@ -16,6 +16,7 @@ import com.jpa.fooddelivery.Utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -100,7 +101,11 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public Resource getBanner(Long id) throws IOException {
         RestaurantResponseDto restaurantResponseDto = findRestaurantById(id);
-        String fullBannerPath = bannerFolderPath + restaurantResponseDto.getBanner();
+        String banner = restaurantResponseDto.getBanner();
+        if (banner != null && (banner.startsWith("http://") || banner.startsWith("https://"))) {
+            return new UrlResource(banner);
+        }
+        String fullBannerPath = bannerFolderPath + banner;
         return fileService.getFile(fullBannerPath);
     }
 }

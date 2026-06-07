@@ -1,9 +1,11 @@
 package com.jpa.fooddelivery.Controllers;
 
 import com.jpa.fooddelivery.Payloads.Requests.LoginRequest;
+import com.jpa.fooddelivery.Payloads.Requests.RefreshTokenRequest;
 import com.jpa.fooddelivery.Payloads.Responses.JwtResponse;
 import com.jpa.fooddelivery.Security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,8 +34,29 @@ public class AuthController {
                 );
         authenticationManager.authenticate(authenticationToken);
 
-        String jwtToken = jwtService.generateToken(loginRequest.email());
-        return ResponseEntity.ok(JwtResponse.builder().token(jwtToken).build());
+        String accessToken = jwtService.generateToken(loginRequest.email(), true);
+        String refreshToken = jwtService.generateToken(loginRequest.email(), false);
+        return ResponseEntity
+                .ok(JwtResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build());
     }
 
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        if (jwtService.validateToken(refreshTokenRequest.getRefreshToken()) && jwtService.isRefreshToken(refreshTokenRequest.getRefreshToken())) {
+            String username = jwtService.getNameFromToken(refreshTokenRequest.getRefreshToken());
+            String newAccessToken = jwtService.generateToken(username, true);
+            String newRefreshToken = jwtService.generateToken(username, false);
+            JwtResponse reponse = JwtResponse
+                    .builder()
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
+                    .build();
+            return ResponseEntity.ok(reponse);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+        }
+    }
 }

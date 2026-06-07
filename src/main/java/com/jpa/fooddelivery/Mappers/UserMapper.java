@@ -7,7 +7,7 @@ import org.mapstruct.*;
 
 @Mapper(
         componentModel = "spring",
-        uses = {AddressMapper.class},
+        uses = {AddressMapper.class, AuthorityMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface UserMapper {
